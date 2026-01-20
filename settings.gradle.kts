@@ -33,6 +33,5 @@ plugins {
 }
 
 include(":composeApp")
-include(":androidApp")
 include(":formdoc")
-include(":formdoc:processor")
+include(":processor")

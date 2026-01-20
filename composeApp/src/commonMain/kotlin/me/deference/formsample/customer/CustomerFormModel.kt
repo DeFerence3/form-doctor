@@ -4,6 +4,7 @@ import me.deference.formdoc.FieldValidator
 import me.deference.formdoc.NotBlank
 import me.deference.formdoc.Validatable
 import me.deference.formdoc.ValidatedBy
+import me.deference.formdoc.registry.FormMetadataRegistry
 
 @Validatable
 data class CustomerFormModel(
@@ -32,7 +33,11 @@ data class CustomerFormModel(
     val currency: CurrencyMaster? = null,
     @ValidatedBy(AddressValidator::class)
     val addresses: List<Address> = emptyList()
-)
+){
+    companion object {
+        val metadata = FormMetadataRegistry.get<CustomerFormModel>()
+    }
+}
 
 
 class AddressValidator : FieldValidator<List<Any?>> {

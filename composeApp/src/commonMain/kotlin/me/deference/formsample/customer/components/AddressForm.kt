@@ -19,12 +19,11 @@ import kotlin.reflect.KProperty1
 
 @Composable
 fun AddressForm(
-    metadata: FormMetadata<Address>?,
     initialAddress: Address,
     onDismiss: () -> Unit,
     onValid: (Address) -> Unit
 ) {
-    val formState = rememberFormState(initialAddress,metadata)
+    val formState = rememberFormState(initialAddress,Address.metadata)
     SectionCard("Address ${initialAddress.usage}") {
         FormContent(state = formState) {
             val addressType = formState.getState(Address::usage)

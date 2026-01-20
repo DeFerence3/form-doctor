@@ -3,6 +3,7 @@ package me.deference.formsample.customer
 import me.deference.formdoc.NotBlank
 import me.deference.formdoc.Validatable
 import me.deference.formdoc.getValueFromMap
+import me.deference.formdoc.registry.FormMetadataRegistry
 import kotlin.reflect.KProperty1
 
 @Validatable
@@ -24,6 +25,8 @@ data class Address(
     var isDefault: Boolean = false,
 ){
     companion object{
+        val metadata = FormMetadataRegistry.get<Address>()
+
         fun fromMap(values:  Map<KProperty1<Address, *>, Any?>): Address{
             return Address(
                 usage = values.getValueFromMap(Address::usage, "BILLING"),

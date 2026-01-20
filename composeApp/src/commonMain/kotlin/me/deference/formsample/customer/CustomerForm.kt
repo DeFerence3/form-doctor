@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import me.deference.formdoc.FormContent
-import me.deference.formdoc.FormMetadata
 import me.deference.formdoc.rememberFormState
 import me.deference.formsample.FormCheckbox
 import me.deference.formsample.FormField
@@ -38,14 +37,11 @@ import me.deference.formsample.customer.components.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomerForm(
-    metadata: FormMetadata<CustomerFormModel>?,
-    addresMetadata: FormMetadata<Address>?
-) {
+fun CustomerForm() {
     val scroll = rememberScrollState()
     var selectedAddress: Address? by remember { mutableStateOf(null) }
     val customer = CustomerFormModel()
-    val customerFormState = rememberFormState(customer,metadata)
+    val customerFormState = rememberFormState(CustomerFormModel(), CustomerFormModel.metadata)
     var isDiscardDialogShowing by remember { mutableStateOf(false) }
     if (isDiscardDialogShowing) Dialog(
         onDismissRequest = { isDiscardDialogShowing = isDiscardDialogShowing.not() }
@@ -87,8 +83,7 @@ fun CustomerForm(
                     val addressMap = addresses.associateBy { it.usage }.toMutableMap()
                     addressMap[address.usage] = address
                     addresses = addressMap.values.toList()
-                },
-                metadata = addresMetadata
+                }
             )
         }
     }

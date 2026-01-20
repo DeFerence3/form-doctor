@@ -1,11 +1,10 @@
-import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
@@ -13,16 +12,12 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
-        namespace = "me.deference.formsample"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
-
+    androidTarget {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -32,20 +27,24 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     jvm()
-    
+
     js {
         browser()
         binaries.executable()
     }
-    
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
         binaries.executable()
     }
-    
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
@@ -58,9 +57,9 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.preview)
+            implementation(compose.materialIconsExtended)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.material.icons.extended)
             implementation(projects.formdoc)
         }
         commonTest.dependencies {
@@ -73,14 +72,43 @@ kotlin {
     }
 }
 
-dependencies{
-    ksp(projects.formdoc.processor)
-    add("kspCommonMainMetadata", projects.formdoc.processor)
-    add("kspAndroid", projects.formdoc.processor)
-    add("kspIosArm64", projects.formdoc.processor)
-    add("kspIosSimulatorArm64", projects.formdoc.processor)
-    add("kspJvm", projects.formdoc.processor)
-    add("kspJs", projects.formdoc.processor)
+android {
+    namespace = "me.deference.formsample"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+
+    defaultConfig {
+        applicationId = "me.deference.formsample"
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        versionCode = 1
+        versionName = "1.0"
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+}
+
+dependencies {
+    debugImplementation(compose.uiTooling)
+    ksp(projects.processor)
+    /*add("kspCommonMainMetadata", projects.processor)
+    add("kspAndroid", projects.processor)
+    add("kspIosArm64", projects.processor)
+    add("kspIosSimulatorArm64", projects.processor)
+    add("kspJvm", projects.processor)
+    add("kspJs", projects.processor)
+    add("kspWasmJs", projects.processor)*/
 }
 
 compose.desktop {

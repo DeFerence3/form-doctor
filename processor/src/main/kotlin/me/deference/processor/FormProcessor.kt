@@ -115,7 +115,7 @@ class FormProcessor(
         classes: List<KSClassDeclaration>
     ) {
         logger.info("Generating metadata registry")
-        val pkg = "me.deference.formdoc.generated"
+        val pkg = "me.deference.formdoc.registry"
         val file = codeGenerator.createNewFile(
             Dependencies(false),
             pkg,
@@ -135,9 +135,9 @@ class FormProcessor(
             }
 
             output.appendLine()
-            output.appendLine("object FormMetadataRegistry {")
+            output.appendLine("actual object FormMetadataRegistry {")
             output.appendLine("    @Suppress(\"UNCHECKED_CAST\")")
-            output.appendLine("    inline fun <reified T : Any> get(): FormMetadata<T>? =")
+            output.appendLine("    actual inline fun <reified T : Any> get(): FormMetadata<T>? =")
             output.appendLine("        when (T::class) {")
 
             classes.forEach {

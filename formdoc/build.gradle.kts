@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -50,22 +48,22 @@ kotlin {
         }
     }
 
-    jvm()
-
     iosSimulatorArm64 {
         binaries.framework {
             baseName = xcfName
         }
     }
 
-    js("js"){
+    jvm()
+    js {
         browser()
-        nodejs()
+        binaries.executable()
     }
 
-    wasmJs("wasmJs"){
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
         browser()
-        nodejs()
+        binaries.executable()
     }
 
     // Source set declarations.
