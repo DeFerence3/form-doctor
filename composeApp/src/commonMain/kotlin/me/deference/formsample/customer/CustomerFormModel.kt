@@ -1,10 +1,10 @@
 package me.deference.formsample.customer
 
+import formdoc.registry.FormMetadataRegistry
 import me.deference.formdoc.FieldValidator
 import me.deference.formdoc.NotBlank
 import me.deference.formdoc.Validatable
 import me.deference.formdoc.ValidatedBy
-import me.deference.formdoc.registry.FormMetadataRegistry
 
 @Validatable
 data class CustomerFormModel(

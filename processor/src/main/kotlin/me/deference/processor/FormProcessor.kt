@@ -115,7 +115,7 @@ class FormProcessor(
         classes: List<KSClassDeclaration>
     ) {
         logger.info("Generating metadata registry")
-        val pkg = "me.deference.formdoc.registry"
+        val pkg = "formdoc.registry"
         val file = codeGenerator.createNewFile(
             Dependencies(false),
             pkg,

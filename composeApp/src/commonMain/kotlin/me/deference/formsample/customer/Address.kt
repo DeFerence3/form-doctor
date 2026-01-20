@@ -1,9 +1,9 @@
 package me.deference.formsample.customer
 
+import formdoc.registry.FormMetadataRegistry
 import me.deference.formdoc.NotBlank
 import me.deference.formdoc.Validatable
 import me.deference.formdoc.getValueFromMap
-import me.deference.formdoc.registry.FormMetadataRegistry
 import kotlin.reflect.KProperty1
 
 @Validatable

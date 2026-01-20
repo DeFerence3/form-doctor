@@ -1,4 +1,4 @@
-package me.deference.formdoc.registry
+package formdoc.registry
 
 import me.deference.formdoc.FormMetadata
 
