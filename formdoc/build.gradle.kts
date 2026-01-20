@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.androidLint)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.maven.publish)
 }
 
 kotlin {
@@ -110,6 +111,37 @@ kotlin {
                 // on common by default and will correctly pull the iOS artifacts of any
                 // KMP dependencies declared in commonMain.
             }
+        }
+    }
+}
+
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    coordinates("io.github.deference3", "formdoc", "0.0.1")
+    pom {
+        name = "Form Doc"
+        description = "A Compose Multiplatform form validating library."
+        inceptionYear = "2026"
+        url = "https://github.com/DeFerence3/form-doctor"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "abhishek-deference"
+                name = "Abhishek Krishnan"
+                url = "https://github.com/DeFerence3"
+            }
+        }
+        scm {
+            url = "https://github.com/DeFerence3/form-doctor"
+            connection = "scm:git:git://github.com/DeFerence3/form-doctor.git"
+            developerConnection = "scm:git:ssh://git@github.com/DeFerence3/form-doctor.git"
         }
     }
 }
