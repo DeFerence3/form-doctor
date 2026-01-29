@@ -7,6 +7,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
 import java.io.OutputStream
@@ -90,8 +91,14 @@ class FormProcessor(
                                 propValidators.add("Validators.max($value, \"$msg\")")
                             }
                             "ValidatedBy" -> {
-                                val kClass = annot.arguments.first().value.toString()
-                                propValidators.add("$kClass()")
+                                val arg = annot.arguments.first().value
+                                val ksType = arg as? KSType
+                                    ?: error("ValidatedBy value is not a KSType")
+                                val declaration = ksType.declaration as? KSClassDeclaration
+                                    ?: error("ValidatedBy declaration is not a KSClassDeclaration")
+                                val fqName = declaration.qualifiedName?.asString()
+                                    ?: error("Unable to resolve qualified name for validator")
+                                propValidators.add("$fqName()")
                             }
                         }
                     }
