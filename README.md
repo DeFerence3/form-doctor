@@ -120,8 +120,6 @@ data class Login(
 
 ## 📦 Installation
 
-*(Coming soon to Maven Central)*
-
 Add the KSP plugin and dependencies to your `build.gradle.kts`:
 
 ```kotlin
@@ -129,9 +127,19 @@ plugins {
     id("com.google.devtools.ksp") version "x.x.x"
 }
 
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("io.github.deference3:formdoc:0.0.1")
+            // other configurations
+        }
+        // other configurations
+    }
+    // other configurations
+}
+
 dependencies {
-    implementation("me.deference:formdoc:1.0.0")
-    ksp("me.deference:formdoc-processor:1.0.0")
+    ksp("io.github:formdoc-processor:0.0.1")
 }
 ```
 
