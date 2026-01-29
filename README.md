@@ -130,7 +130,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.deference3:formdoc:0.0.1")
+            implementation("io.github.deference3:formdoc:0.0.2")
             // other configurations
         }
         // other configurations
@@ -139,7 +139,7 @@ kotlin {
 }
 
 dependencies {
-    ksp("io.github:formdoc-processor:0.0.1")
+    ksp("io.github:formdoc-processor:0.0.2")
 }
 ```
 
@@ -147,7 +147,7 @@ dependencies {
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
 
 ---
 
