@@ -118,7 +118,7 @@ kotlin {
 mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
-    coordinates("io.github.deference3", "formdoc", "0.0.2")
+    coordinates("io.github.deference3", "formdoc", "0.0.3")
     pom {
         name = "Form Doc"
         description = "A Compose Multiplatform form validating library."
