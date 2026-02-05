@@ -65,6 +65,19 @@ class FormState<T : Any>(
         return firstError == null
     }
 
+    /**
+     * Clears all the data from form fields
+     */
+    fun clear() {
+        fields.forEach { (propAny, entryAny) ->
+            val prop = propAny
+            val entry = entryAny as FieldEntry<Any?>
+            entry.state.value = prop.get(initialData)
+            entry.state.error = null
+            entry.state.touched = false
+        }
+    }
+
     fun validateAll(): Boolean {
         var ok = true
         for (propName in fields.keys) {

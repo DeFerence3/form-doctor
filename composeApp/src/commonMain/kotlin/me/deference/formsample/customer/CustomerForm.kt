@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -90,13 +91,24 @@ fun CustomerForm() {
 
     Scaffold(
         bottomBar = {
-            Button(onClick = {
-                customerFormState.submit(
-                    onValid = { },
-                    onInvalid = { }
-                )
-            }){
-                Text("Submit")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(spacing.smaller, Alignment.End)
+            ) {
+                OutlinedButton(onClick = {
+                    customerFormState.clear()
+                }){
+                    Text("Clear")
+                }
+                Button(onClick = {
+                    customerFormState.submit(
+                        onValid = { },
+                        onInvalid = { }
+                    )
+                }){
+                    Text("Submit")
+                }
             }
         }
     ) { pad ->
