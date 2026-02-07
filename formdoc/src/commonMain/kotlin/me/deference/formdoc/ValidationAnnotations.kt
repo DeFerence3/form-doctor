@@ -44,6 +44,16 @@ annotation class Max(
     val message: String = "Value too large"
 )
 
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.PROPERTY)
+annotation class FormElement(
+    val label: String = "",
+    val required: Boolean = true,
+    val enabled: Boolean = true,
+    val requiredIf: String = "",
+    val enabledIf: String = ""
+)
+
 fun interface FieldValidator<T> {
     /**
      * @return error message, or null if valid
@@ -51,6 +61,15 @@ fun interface FieldValidator<T> {
     fun validate(value: T): String?
 }
 
+data class FieldMetadata(
+    val label: String = "",
+    val required: Boolean = false,
+    val enabled: Boolean = true,
+    val requiredIf: String = "",
+    val enabledIf: String = ""
+)
+
 interface FormMetadata<T : Any> {
     val validators: Map<KProperty1<T, *>, List<FieldValidator<*>>>
+    val fieldMetadata: Map<KProperty1<T, *>, FieldMetadata>
 }

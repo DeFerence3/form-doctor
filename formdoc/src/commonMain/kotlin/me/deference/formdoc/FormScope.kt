@@ -6,7 +6,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 
 class FormScope<T : Any>(
     val state: FormState<T>
-)
+) {
+    fun <V> getState(prop: kotlin.reflect.KProperty1<T, V>) = state.getState(prop)
+}
 
 @Composable
 fun <T : Any> rememberFormState(
@@ -22,5 +24,15 @@ fun <T : Any> FormContent(
     content: @Composable FormScope<T>.() -> Unit
 ) {
     val scope = remember(state) { FormScope(state) }
+    
+    // Automatically refresh dynamic states when any field value changes
+    androidx.compose.runtime.LaunchedEffect(state) {
+        androidx.compose.runtime.snapshotFlow { 
+            state.values().values.toList() 
+        }.collect {
+            state.refreshDynamicStates()
+        }
+    }
+    
     scope.content()
 }

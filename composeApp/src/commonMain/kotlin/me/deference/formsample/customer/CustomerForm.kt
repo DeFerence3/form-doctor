@@ -152,17 +152,14 @@ fun CustomerForm() {
                             )
                             customer.id?.let{
                                 FormCheckbox(
-                                    prop = CustomerFormModel::isActive,
-                                    label = "Is Active"
+                                    prop = CustomerFormModel::isActive
                                 )
                             }
                             FormCheckbox(
-                                prop = CustomerFormModel::isServiceParty,
-                                label = "Is Service Party"
+                                prop = CustomerFormModel::isServiceParty
                             )
                             FormCheckbox(
-                                prop = CustomerFormModel::isAlsoSupplier,
-                                label = "Is Supplier"
+                                prop = CustomerFormModel::isAlsoSupplier
                             )
                         }
                     }
@@ -212,18 +209,14 @@ fun CustomerForm() {
                     }
                     Column(Modifier.weight(1f), Arrangement.spacedBy(16.dp)) {
                         SectionCard("Tax & Compliance") {
-                            val chState = customerFormState.getState(CustomerFormModel::isTaxRegistered)
                             FormCheckbox(
-                                prop = CustomerFormModel::isTaxRegistered,
-                                label = "Is Tax Registered"
+                                prop = CustomerFormModel::isTaxRegistered
                             )
                             FormField(
-                                prop = CustomerFormModel::taxRegistrationNumber,
-                                enabled = chState.value
+                                prop = CustomerFormModel::taxRegistrationNumber
                             )
                             FormField(
-                                prop = CustomerFormModel::panNo,
-                                enabled = chState.value
+                                prop = CustomerFormModel::panNo
                             )
                         }
                         SectionCard("Addresses") {

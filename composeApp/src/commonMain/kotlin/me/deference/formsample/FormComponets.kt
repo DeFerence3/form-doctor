@@ -17,7 +17,7 @@ fun <T : Any> FormScope<T>.FormField(
     modifier: Modifier = Modifier,
     inputType: InputType = InputType.STRING,
     label: String? = null,
-    enabled: Boolean = true
+    enabled: Boolean? = null
 ) {
     val state = this.state.getState(prop)
     TextField(
@@ -28,19 +28,19 @@ fun <T : Any> FormScope<T>.FormField(
             state.value = it
             state.touched = true
         },
-        label = label?.let { { Text(it) } },
+        label = { Text(label ?: state.label) },
         isError = state.error != null,
         supportingText = state.error?.let{
             { Text(it) }
         },
-        enabled = enabled
+        enabled = enabled ?: state.enabled
     )
 }
 
 @Composable
 fun <T : Any> FormScope<T>.FormCheckbox(
     prop: KProperty1<T, Boolean>,
-    label: String,
+    label: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val state = this.state.getState(prop)
@@ -48,11 +48,15 @@ fun <T : Any> FormScope<T>.FormCheckbox(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(checked = state.value, onCheckedChange = {
-            state.value = it
-            state.touched = true
-        })
-        Text(label)
+        Checkbox(
+            checked = state.value,
+            onCheckedChange = {
+                state.value = it
+                state.touched = true
+            },
+            enabled = state.enabled
+        )
+        Text(label ?: state.label)
     }
 }
 

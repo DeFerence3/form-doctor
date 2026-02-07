@@ -59,7 +59,7 @@ class FormProcessor(
                 output.appendLine("class $generatedClassName : FormMetadata<$className> {")
                 output.appendLine("    override val validators: Map<kotlin.reflect.KProperty1<$className, *>, List<FieldValidator<*>>> = mapOf(")
 
-                val properties = classDeclaration.getAllProperties()
+                val properties = classDeclaration.getAllProperties().toList()
                 properties.forEach { prop ->
                     val propName = prop.simpleName.asString()
                     val propValidators = mutableListOf<String>()
@@ -114,6 +114,21 @@ class FormProcessor(
                             output.appendLine("            $v$comma")
                         }
                         output.appendLine("        ),")
+                    }
+                }
+                output.appendLine("    )")
+                output.appendLine()
+                output.appendLine("    override val fieldMetadata: Map<kotlin.reflect.KProperty1<$className, *>, FieldMetadata> = mapOf(")
+                properties.forEach { prop ->
+                    val propName = prop.simpleName.asString()
+                    val formElement = prop.annotations.find { it.shortName.asString() == "FormElement" }
+                    if (formElement != null) {
+                        val label = formElement.arguments.find { it.name?.asString() == "label" }?.value as? String ?: ""
+                        val required = formElement.arguments.find { it.name?.asString() == "required" }?.value as? Boolean ?: false
+                        val enabled = formElement.arguments.find { it.name?.asString() == "enabled" }?.value as? Boolean ?: true
+                        val requiredIf = formElement.arguments.find { it.name?.asString() == "requiredIf" }?.value as? String ?: ""
+                        val enabledIf = formElement.arguments.find { it.name?.asString() == "enabledIf" }?.value as? String ?: ""
+                        output.appendLine("        $className::$propName to FieldMetadata(label = \"$label\", required = $required, enabled = $enabled, requiredIf = \"$requiredIf\", enabledIf = \"$enabledIf\"),")
                     }
                 }
                 output.appendLine("    )")
