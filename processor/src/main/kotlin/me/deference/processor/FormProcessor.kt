@@ -71,6 +71,10 @@ class FormProcessor(
                                 val msg = annot.arguments.find { it.name?.asString() == "message" }?.value as? String ?: "This field is required"
                                 propValidators.add("Validators.notBlank(\"$msg\")")
                             }
+                            "NotNull" -> {
+                                val msg = annot.arguments.find { it.name?.asString() == "message" }?.value as? String ?: "This field is required"
+                                propValidators.add("Validators.notNull(\"$msg\")")
+                            }
                             "Email" -> {
                                 val msg = annot.arguments.find { it.name?.asString() == "message" }?.value as? String ?: "Invalid email address"
                                 propValidators.add("Validators.email(\"$msg\")")

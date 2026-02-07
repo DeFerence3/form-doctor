@@ -13,6 +13,10 @@ annotation class NotBlank(val message: String = "This field is required")
 
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.PROPERTY)
+annotation class NotNull(val message: String = "This field is required")
+
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.PROPERTY)
 annotation class Email(val message: String = "Invalid email address")
 
 @Retention(AnnotationRetention.BINARY)

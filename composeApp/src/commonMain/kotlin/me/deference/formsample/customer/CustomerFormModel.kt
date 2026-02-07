@@ -3,6 +3,7 @@ package me.deference.formsample.customer
 import formdoc.registry.FormMetadataRegistry
 import me.deference.formdoc.FieldValidator
 import me.deference.formdoc.NotBlank
+import me.deference.formdoc.NotNull
 import me.deference.formdoc.Validatable
 import me.deference.formdoc.ValidatedBy
 
@@ -29,7 +30,7 @@ data class CustomerFormModel(
     val isBlockForPayment: Boolean = false,
     val isBlockForSales: Boolean = false,
     val isBlockForReceipt: Boolean = false,
-    @ValidatedBy(NotNullValidator::class)
+    @NotNull("Select Currency")
     val currency: CurrencyMaster? = null,
     @ValidatedBy(AddressValidator::class)
     val addresses: List<Address> = emptyList()
@@ -43,14 +44,6 @@ data class CustomerFormModel(
 class AddressValidator : FieldValidator<List<Any?>> {
     override fun validate(value: List<Any?>): String? {
         if (value.isEmpty()) return "At least one address required"
-        return null
-    }
-}
-
-
-class NotNullValidator: FieldValidator<Any?> {
-    override fun validate(value: Any?): String? {
-        if (value == null) return "This field is required"
         return null
     }
 }
