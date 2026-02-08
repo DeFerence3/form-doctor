@@ -10,6 +10,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
+import com.sun.beans.introspect.PropertyInfo
 import java.io.OutputStream
 
 class FormProcessor(
@@ -130,6 +131,13 @@ class FormProcessor(
                         val enabledIf = formElement.arguments.find { it.name?.asString() == "enabledIf" }?.value as? String ?: ""
                         output.appendLine("        $className::$propName to FieldMetadata(label = \"$label\", required = $required, enabled = $enabled, requiredIf = \"$requiredIf\", enabledIf = \"$enabledIf\"),")
                     }
+                }
+                output.appendLine("    )")
+                output.appendLine()
+                output.appendLine("    override val fields: List<kotlin.reflect.KProperty1<$className, *>> = listOf(")
+                properties.forEach { prop ->
+                    val propName = prop.simpleName.asString()
+                    output.appendLine("        $className::$propName,")
                 }
                 output.appendLine("    )")
                 output.appendLine("}")

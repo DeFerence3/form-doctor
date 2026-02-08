@@ -17,11 +17,11 @@ class FormState<T : Any>(
     private val fields = mutableMapOf<KProperty1<T, *>, FieldEntry<*>>()
 
     init {
-        val allProps = (metadata?.validators?.keys ?: emptySet()) + (metadata?.fieldMetadata?.keys ?: emptySet())
+        val allProps = metadata?.fields ?: emptyList()
         allProps.forEach { prop ->
             val validators = (metadata?.validators?.get(prop) ?: emptyList()) as List<FieldValidator<Any?>>
             val meta = metadata?.fieldMetadata?.get(prop) ?: FieldMetadata()
-            val value = getInitial(prop as KProperty1<T, Any?>)
+            val value = getInitial(prop)
             val entry = FieldEntry(
                 state = FieldState(
                     initial = value,
@@ -33,6 +33,10 @@ class FormState<T : Any>(
                 metadata = meta
             )
             fields[prop] = entry
+        }
+
+        fields.forEach {
+            println("${it.key.name} - ${it.value}")
         }
     }
 
@@ -117,7 +121,7 @@ class FormState<T : Any>(
 
         val value = entry.state.value
 
-        val validators = entry.validators.toMutableList() as MutableList<FieldValidator<Any?>>
+        val validators = entry.validators.toMutableList()
         if (entry.state.required) {
             validators.add(0, Validators.notNull(entry.state.label + " is required"))
             if (value is String) {

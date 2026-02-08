@@ -72,4 +72,5 @@ data class FieldMetadata(
 interface FormMetadata<T : Any> {
     val validators: Map<KProperty1<T, *>, List<FieldValidator<*>>>
     val fieldMetadata: Map<KProperty1<T, *>, FieldMetadata>
+    val fields: List<KProperty1<T, *>>
 }
