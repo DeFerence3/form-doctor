@@ -33,4 +33,11 @@ object Validators {
     ): FieldValidator<String?> = FieldValidator { value ->
         if ((value?.length ?: 0) < min) message else null
     }
+
+    fun email(message: String): FieldValidator<String?> = FieldValidator { value ->
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
+        if (value.isNullOrBlank()) message
+        else if (!value.matches(emailRegex.toRegex())) "Not a valid email"
+        else null
+    }
 }

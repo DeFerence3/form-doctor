@@ -65,6 +65,10 @@ class FormProcessor(
                     val propName = prop.simpleName.asString()
                     val propValidators = mutableListOf<String>()
 
+                    val propDeclaration = prop.type.resolve().declaration
+
+                    val propType =propDeclaration.qualifiedName?.asString() ?: propDeclaration.simpleName.asString()
+
                     prop.annotations.forEach { annot ->
                         val annotationName = annot.shortName.asString()
                         when (annotationName) {
@@ -74,7 +78,7 @@ class FormProcessor(
                             }
                             "NotNull" -> {
                                 val msg = annot.arguments.find { it.name?.asString() == "message" }?.value as? String ?: "This field is required"
-                                propValidators.add("Validators.notNull(\"$msg\")")
+                                propValidators.add("Validators.notNull<$propType>(\"$msg\")")
                             }
                             "Email" -> {
                                 val msg = annot.arguments.find { it.name?.asString() == "message" }?.value as? String ?: "Invalid email address"
@@ -88,7 +92,7 @@ class FormProcessor(
                             "Min" -> {
                                 val value = annot.arguments.find { it.name?.asString() == "value" }?.value as? Int ?: 0
                                 val msg = annot.arguments.find { it.name?.asString() == "message" }?.value as? String ?: "Value too small"
-                                propValidators.add("Validators.min($value, \"$msg\")")
+                                propValidators.add("Validators.min<$propType>($value, \"$msg\")")
                             }
                             "Max" -> {
                                 val value = annot.arguments.find { it.name?.asString() == "value" }?.value as? Int ?: 0
