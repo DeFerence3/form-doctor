@@ -53,7 +53,11 @@ data class CustomerFormModel(
 
 class AddressValidator : FieldValidator<List<Any?>> {
     override fun validate(value: List<Any?>): String? {
-        if (value.isEmpty()) return "At least one address required"
-        return null
+        val result = if (value.isEmpty())  "At least one address required"
+        else null
+
+        println("AddressValidator: $result")
+
+        return result
     }
 }

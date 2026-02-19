@@ -1,11 +1,20 @@
 package me.deference.formdoc
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlin.reflect.KProperty1
 
 @Suppress("UNCHECKED_CAST")
 class FormState<T : Any>(
     val initialData: T,
-    private val metadata: FormMetadata<T>?
+    private val metadata: FormMetadata<T>?,
+    private val scope: CoroutineScope
 ) {
 
     private class FieldEntry<V>(
@@ -35,8 +44,30 @@ class FormState<T : Any>(
             fields[prop] = entry
         }
 
-        fields.forEach {
-            println("${it.key.name} - ${it.value}")
+        fields.forEach { (prop, entry) ->
+            setupDebouncedValidation(entry)
+        }
+    }
+
+    var isValid by mutableStateOf(true)
+        private set
+
+    private fun setupDebouncedValidation(
+        entry: FieldEntry<*>
+    ) {
+        scope.launch {
+            snapshotFlow { entry.state.value }
+                .collectLatest {
+                    delay(300L)
+                    isValid = computeFormValidity()
+                }
+        }
+    }
+
+    private fun computeFormValidity(): Boolean {
+        refreshDynamicStates()
+        return fields.all { (prop, _) ->
+            validateFieldWithoutUpdatingFieldState(prop) == null
         }
     }
 
@@ -68,28 +99,19 @@ class FormState<T : Any>(
     ): FieldState<V> {
         val existing = fields[prop] as? FieldEntry<V>
         val state = existing?.state ?: registerFieldInternal(prop, emptyList())
-        
-        // Initial refresh to set correct dynamic states
-        refreshDynamicStates()
-        
+        refreshDynamicState(prop)
         return state
     }
 
     fun refreshDynamicStates() {
-        fields.forEach { (prop, entry) ->
+        fields.forEach { (_, entry) ->
             val meta = entry.metadata
             
             if (meta.enabledIf.isNotBlank()) {
                 val dependentProp = fields.keys.find { it.name == meta.enabledIf }
                 if (dependentProp != null) {
                     val dependentValue = fields[dependentProp]?.state?.value
-                    entry.state.enabled = if (dependentValue is Boolean) {
-                        dependentValue
-                    } else {
-                        // If not boolean, we could check if it's not null, or other logic.
-                        // For now, let's assume boolean as requested.
-                        meta.enabled
-                    }
+                    entry.state.enabled = dependentValue as? Boolean ?: meta.enabled
                 }
             }
             
@@ -97,26 +119,43 @@ class FormState<T : Any>(
                 val dependentProp = fields.keys.find { it.name == meta.requiredIf }
                 if (dependentProp != null) {
                     val dependentValue = fields[dependentProp]?.state?.value
-                    entry.state.required = if (dependentValue is Boolean) {
-                        dependentValue
-                    } else {
-                        meta.required
-                    }
+                    entry.state.required = dependentValue as? Boolean ?: meta.required
                 }
             }
         }
     }
 
-    private fun validateField(prop: KProperty1<T, *>): Boolean {
-        // Refresh dynamic states before validation to ensure we have the latest enabled/required status
+    private fun refreshDynamicState(prop: KProperty1<T, *>) {
+        val entry = fields[prop]
+        if (entry != null) {
+            val meta = entry.metadata
+            if (meta.enabledIf.isNotBlank()) {
+                val dependentProp = fields.keys.find { it.name == meta.enabledIf }
+                if (dependentProp != null) {
+                    val dependentValue = fields[dependentProp]?.state?.value
+                    entry.state.enabled = dependentValue as? Boolean ?: meta.enabled
+                }
+            }
+
+            if (meta.requiredIf.isNotBlank()) {
+                val dependentProp = fields.keys.find { it.name == meta.requiredIf }
+                if (dependentProp != null) {
+                    val dependentValue = fields[dependentProp]?.state?.value
+                    entry.state.required = dependentValue as? Boolean ?: meta.required
+                }
+            }
+        }
+    }
+
+
+    private fun validateFieldWithoutUpdatingFieldState(prop: KProperty1<T, *>): String? {
         refreshDynamicStates()
 
-        val entryAny = fields[prop] ?: return true
+        val entryAny = fields[prop] ?: return null
         val entry = entryAny as FieldEntry<Any?>
-        
+
         if (!entry.state.enabled) {
-            entry.state.error = null
-            return true
+            return null
         }
 
         val value = entry.state.value
@@ -129,12 +168,26 @@ class FormState<T : Any>(
             }
         }
 
-        val firstError = validators
-            .asSequence()
-            .mapNotNull { it.validate(value) }
-            .firstOrNull()
+        val firstError = validators.firstNotNullOfOrNull { it.validate(value) }
 
-        println("Validating ${prop.name} (${validators.size}): $firstError")
+        return firstError
+    }
+
+
+    private fun validateField(prop: KProperty1<T, *>): Boolean {
+        refreshDynamicStates()
+
+        val entryAny = fields[prop] ?: return true
+        val entry = entryAny as FieldEntry<Any?>
+        
+        if (!entry.state.enabled) {
+            entry.state.error = null
+            return true
+        }
+
+        val value = entry.state.value
+        val validators = entry.validators.toMutableList()
+        val firstError = validators.firstNotNullOfOrNull { it.validate(value) }
 
         entry.state.error = firstError
         return firstError == null

@@ -1,5 +1,6 @@
 package me.deference.formsample.customer.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -33,6 +34,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import me.deference.formsample.DocTextField
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
@@ -45,7 +47,8 @@ fun <T> Selector(
     onSearchClick: () -> Unit,
     modifier: Modifier = Modifier,
     required: Boolean = false,
-    errorMessage: String? = null
+    errorMessage: String? = null,
+    enabled: Boolean = true
 ) {
     var expanded by remember { mutableStateOf(false) }
     when (state) {
@@ -91,8 +94,9 @@ fun <T> Selector(
                 expanded = expanded,
                 label = { label(it) },
                 anchor = {
-                    TextField(
+                    DocTextField(
                         modifier = Modifier
+                            .fillMaxWidth()
                             .onFocusChanged { focusState ->
                                 expanded = focusState.hasFocus
                                 if (selected != null && !focusState.hasFocus) {
@@ -117,7 +121,7 @@ fun <T> Selector(
                                 } else false
                             },
                         state = textState,
-                        label = { Text(selectorTag) },
+                        label = selectorTag,
                         trailingIcon = {
                             IconButton(
                                 onClick = onSearchClick
@@ -128,8 +132,8 @@ fun <T> Selector(
                                 )
                             }
                         },
-                        isError = errorMessage != null,
-                        supportingText = errorMessage?.let { { Text(it)} }
+                        errorMessage = errorMessage,
+                        enabled = enabled
                     )
                 }
             )

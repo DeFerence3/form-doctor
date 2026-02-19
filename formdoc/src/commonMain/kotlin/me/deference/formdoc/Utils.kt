@@ -5,11 +5,22 @@ import kotlin.reflect.KProperty1
 @Suppress("UNCHECKED_CAST")
 fun <T,K> Map<KProperty1<K, *>, Any?>.getValueFromMap(
     property: KProperty1<K, *>,
-    string: T,
+    default: T,
 ): T {
     return try{
-        this[property]?.let { it as T } ?: string
+        this[property]?.let { it as T } ?: default
     }catch (e: Exception){
-        string
+        default
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T,K> Map<KProperty1<K, *>, Any?>.getValueFromMap(
+    property: KProperty1<K, *>
+): T? {
+    return try{
+        this[property]?.let { it as T }
+    }catch (e: Exception){
+        null
     }
 }

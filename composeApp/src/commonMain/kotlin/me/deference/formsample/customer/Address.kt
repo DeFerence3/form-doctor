@@ -8,7 +8,7 @@ import kotlin.reflect.KProperty1
 
 @Validatable
 data class Address(
-    @NotBlank("Required Bro")
+    @NotBlank("Required")
     val usage: String = "",
     var line1: String = "",
     var line2: String = "",
@@ -17,7 +17,7 @@ data class Address(
     var pin: String = "",
     var state: StateMaster? = null,
     var district: DistrictMaster? = null,
-    @NotBlank("Required Bro")
+    @NotBlank("Mobile Number Required")
     val mobileNumber: String = "",
     val mobileNumber2: String = "",
     val email: String = "",

@@ -1,6 +1,5 @@
 package me.deference.formsample.customer.components
 
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import me.deference.formsample.customer.CurrencyMaster
@@ -68,13 +67,9 @@ fun DistrictSelector(
         DistrictMaster("District 4")
     ))
 
-    if (stateMaster == null) {
-        return TextField(
-            value = "Select State",
-            modifier = modifier,
-            onValueChange = { }
-        )
-    }
+    val selectorTag = if (stateMaster == null) {
+        "Select State"
+    } else "District"
 
     Selector(
         modifier = modifier,
@@ -82,10 +77,11 @@ fun DistrictSelector(
         onSelect = onSelect,
         state = state,
         label = { it.districtName },
-        selectorTag = "District",
+        selectorTag = selectorTag,
         onSearchClick = { },
         required = required,
-        errorMessage = error
+        errorMessage = error,
+        enabled = stateMaster != null
     )
 }
 

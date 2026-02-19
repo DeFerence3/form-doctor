@@ -68,7 +68,7 @@ fun CustomerForm() {
         }
     }
 
-    var addresses: List<Address> by remember { mutableStateOf(customer.addresses)}
+    var addresses = customerFormState.getState(CustomerFormModel::addresses)
     if (selectedAddress != null) {
         val initialAddress = selectedAddress!!
         Dialog(
@@ -81,9 +81,9 @@ fun CustomerForm() {
                 },
                 onValid = { address ->
                     selectedAddress = null
-                    val addressMap = addresses.associateBy { it.usage }.toMutableMap()
+                    val addressMap = addresses.value.associateBy { it.usage }.toMutableMap()
                     addressMap[address.usage] = address
-                    addresses = addressMap.values.toList()
+                    addresses.value = addressMap.values.toList()
                 }
             )
         }
@@ -94,8 +94,10 @@ fun CustomerForm() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(spacing.smaller, Alignment.End)
+                horizontalArrangement = Arrangement.spacedBy(spacing.smaller, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Text("IsFormValid: ${customerFormState.isValid}")
                 OutlinedButton(onClick = {
                     customerFormState.clear()
                 }){
@@ -221,7 +223,7 @@ fun CustomerForm() {
                         }
                         SectionCard("Addresses") {
                             FlowRow{
-                                addresses.forEach { address ->
+                                addresses.value.forEach { address ->
                                     OutlinedButton(
                                         onClick = {
                                             selectedAddress = address

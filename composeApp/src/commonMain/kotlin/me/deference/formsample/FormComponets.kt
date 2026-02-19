@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +19,7 @@ fun <T : Any> FormScope<T>.FormField(
     enabled: Boolean? = null
 ) {
     val state = this.state.getState(prop)
-    TextField(
+    DocTextField(
         modifier = modifier
             .fillMaxWidth(),
         value = state.value ?: "",
@@ -28,11 +27,8 @@ fun <T : Any> FormScope<T>.FormField(
             state.value = it
             state.touched = true
         },
-        label = { Text(label ?: state.label) },
-        isError = state.error != null,
-        supportingText = state.error?.let{
-            { Text(it) }
-        },
+        label = label ?: state.label,
+        errorMessage = state.error,
         enabled = enabled ?: state.enabled
     )
 }

@@ -2,7 +2,8 @@ package me.deference.formdoc
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.CoroutineScope
 
 class FormScope<T : Any>(
     val state: FormState<T>
@@ -13,9 +14,10 @@ class FormScope<T : Any>(
 @Composable
 fun <T : Any> rememberFormState(
     initial: T,
-    metadata: FormMetadata<T>? = null
+    metadata: FormMetadata<T>? = null,
+    scope: CoroutineScope = rememberCoroutineScope()
 ): FormState<T> {
-    return remember(initial) { FormState(initialData = initial, metadata = metadata) }
+    return remember(initial) { FormState(initialData = initial, metadata = metadata,scope) }
 }
 
 @Composable

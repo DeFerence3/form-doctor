@@ -36,23 +36,28 @@ fun AddressForm(
             )
 
             FormField(
-                prop = Address::line1
+                prop = Address::line1,
+                label = "Line 1"
             )
 
             FormField(
-                prop = Address::line2
+                prop = Address::line2,
+                label = "Line 2"
             )
 
             FormField(
-                prop = Address::line3
+                prop = Address::line3,
+                label = "Line 3"
             )
 
             FormField(
                 prop = Address::place,
+                label = "Place"
             )
 
             FormField(
                 prop = Address::email,
+                label = "Email"
             )
 
             Row(
@@ -86,17 +91,20 @@ fun AddressForm(
                 FormField(
                     modifier = Modifier
                         .weight(0.5f),
-                    prop = Address::mobileNumber
+                    prop = Address::mobileNumber,
+                    label = "Mobile Number"
                 )
                 FormField(
                     modifier = Modifier
                         .weight(0.5f),
-                    prop = Address::mobileNumber2
+                    prop = Address::mobileNumber2,
+                    label = "Mobile Number 2"
                 )
             }
 
             FormField(
-                prop = Address::pin
+                prop = Address::pin,
+                label = "Pin"
             )
 
             FormCheckbox(
@@ -112,7 +120,9 @@ fun AddressForm(
                 Button(
                     onClick = {
                         formState.submit(
-                            onValid = { values -> Address.fromMap(values) },
+                            onValid = { values ->
+                                onValid(Address.fromMap(values))
+                            },
                             onInvalid = {
                                 println("Invalid form")
                             },
