@@ -10,7 +10,7 @@ dependencies {
 mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
-    coordinates("io.github.deference3", "formdoc-processor", "0.0.6")
+    coordinates("io.github.deference3", "formdoc-processor", "0.0.7")
     pom {
         name = "Form Doc"
         description = "A Compose Multiplatform form validating library."

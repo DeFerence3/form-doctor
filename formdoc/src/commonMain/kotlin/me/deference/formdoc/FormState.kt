@@ -14,7 +14,7 @@ import kotlin.reflect.KProperty1
 class FormState<T : Any>(
     val initialData: T,
     private val metadata: FormMetadata<T>?,
-    private val scope: CoroutineScope
+    scope: CoroutineScope? = null
 ) {
 
     private class FieldEntry<V>(
@@ -44,8 +44,10 @@ class FormState<T : Any>(
             fields[prop] = entry
         }
 
-        fields.forEach { (prop, entry) ->
-            setupDebouncedValidation(entry)
+        scope?.let{ validationScope ->
+            fields.forEach { (prop, entry) ->
+                setupDebouncedValidation(entry,validationScope)
+            }
         }
     }
 
@@ -53,7 +55,8 @@ class FormState<T : Any>(
         private set
 
     private fun setupDebouncedValidation(
-        entry: FieldEntry<*>
+        entry: FieldEntry<*>,
+        scope: CoroutineScope
     ) {
         scope.launch {
             snapshotFlow { entry.state.value }
