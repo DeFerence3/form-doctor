@@ -9,6 +9,9 @@ Designed with **Compose Multiplatform** in mind, FormDoc provides a seamless way
 ## ✨ Features
 
 - 🚀 **Annotation-based Validation:** Define validation rules directly on your data models.
+- ✍️ **DSL-based Validation:** Configure rules, labels, and dynamic states using a type-safe DSL.
+- 🔗 **Complex Cross-Field Validation:** Validate fields based on other field values.
+- ⚡ **Dynamic Registration:** Add custom validators to form states dynamically at runtime.
 - 🛠️ **KSP Powered:** Compile-time metadata generation means no reflection overhead.
 - 🎨 **Compose Ready:** Built-in support for `mutableStateOf` based form tracking.
 - 🌍 **Multiplatform:** Consistent validation logic across all KMP targets.
@@ -104,6 +107,53 @@ data class Login(
     @ValidatedBy(PasswordValidator::class)
     val password: String = ""
 )
+```
+
+### 4. DSL-based Validation (Alternative Approach)
+
+If you prefer a code-first approach without annotations or KSP, you can use the `formConfig` DSL. This supports highly customizable and complex cross-field validations.
+
+```kotlin
+val loginFormMetadata = formConfig<Login> {
+    field(Login::username) {
+        label = "Username"
+        required = true
+        notBlank("Username is required")
+        minLength(3, "Too short")
+    }
+
+    field(Login::password) {
+        label = "Password"
+        required = true
+        minLength(8, "Must be at least 8 chars")
+    }
+
+    // Dynamic field validation depending on other fields:
+    field(Login::confirmPassword) {
+        label = "Confirm Password"
+        validateWithForm { value, formState ->
+            val password = formState.getState(Login::password).value
+            if (value != password) "Passwords do not match" else null
+        }
+    }
+}
+```
+
+Then pass it directly to `rememberFormState`:
+
+```kotlin
+val formState = rememberFormState(
+    initial = Login(),
+    metadata = loginFormMetadata
+)
+```
+
+You can also dynamically add validators after creation:
+
+```kotlin
+formState.addValidator(Login::username) { value ->
+    if (value == "admin") "Admin registration not allowed" else null
+}
 ```
 
 ---

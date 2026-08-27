@@ -9,12 +9,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.reflect.KProperty1
+import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("UNCHECKED_CAST")
 class FormState<T : Any>(
     val initialData: T,
     private val metadata: FormMetadata<T>?,
-    scope: CoroutineScope? = null
+    private val scope: CoroutineScope? = null
 ) {
 
     private class FieldEntry<V>(
@@ -29,6 +30,12 @@ class FormState<T : Any>(
         val allProps = metadata?.fields ?: emptyList()
         allProps.forEach { prop ->
             val validators = (metadata?.validators?.get(prop) ?: emptyList()) as List<FieldValidator<Any?>>
+            validators.forEach { validator ->
+                if (validator is FormStateAware<*>) {
+                    @Suppress("UNCHECKED_CAST")
+                    (validator as FormStateAware<T>).setFormState(this)
+                }
+            }
             val meta = metadata?.fieldMetadata?.get(prop) ?: FieldMetadata()
             val value = getInitial(prop)
             val entry = FieldEntry(
@@ -61,7 +68,7 @@ class FormState<T : Any>(
         scope.launch {
             snapshotFlow { entry.state.value }
                 .collectLatest {
-                    delay(300L)
+                    delay(300.milliseconds)
                     isValid = computeFormValidity()
                 }
         }
@@ -76,11 +83,30 @@ class FormState<T : Any>(
 
     fun <V> getInitial(prop: KProperty1<T, V>): V = prop.get(initialData)
 
+    @Suppress("UNCHECKED_CAST")
+    fun <V> addValidator(prop: KProperty1<T, V>, validator: FieldValidator<V>) {
+        if (validator is FormStateAware<*>) {
+            (validator as FormStateAware<T>).setFormState(this)
+        }
+        val entry = fields[prop] as? FieldEntry<V>
+        if (entry != null) {
+            entry.validators.add(validator)
+        } else {
+            registerFieldInternal(prop, listOf(validator))
+        }
+    }
+
     private fun <V> registerFieldInternal(
         prop: KProperty1<T, V>,
         validators: List<FieldValidator<V>>,
         meta: FieldMetadata = FieldMetadata()
     ): FieldState<V> {
+        validators.forEach { validator ->
+            if (validator is FormStateAware<*>) {
+                @Suppress("UNCHECKED_CAST")
+                (validator as FormStateAware<T>).setFormState(this)
+            }
+        }
         val existing = fields[prop] as? FieldEntry<V>
         val state = existing?.state ?: FieldState(
             initial = getInitial(prop),
@@ -94,6 +120,9 @@ class FormState<T : Any>(
             metadata = meta
         )
         fields[prop] = entry
+        scope?.let { validationScope ->
+            setupDebouncedValidation(entry, validationScope)
+        }
         return entry.state
     }
 
