@@ -20,6 +20,7 @@ core = "1.7.0"
 symbolProcessingApi = "2.3.4"
 ksp = "2.3.4"
 mavenpublish="0.36.0"
+autoservice = "0.1.5"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -42,6 +43,7 @@ runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "com
 foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 
 [plugins]
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
@@ -52,3 +54,4 @@ androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.lib
 androidLint = { id = "com.android.lint", version.ref = "agp" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp"}
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenpublish"}
+autoservice = { id = "com.fueledbycaffeine.autoservice", version.ref = "autoservice" }

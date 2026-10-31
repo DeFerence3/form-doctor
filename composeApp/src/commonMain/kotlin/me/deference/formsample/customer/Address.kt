@@ -3,10 +3,12 @@ package me.deference.formsample.customer
 import formdoc.registry.FormMetadataRegistry
 import me.deference.formdoc.NotBlank
 import me.deference.formdoc.Validatable
+import me.deference.formdoc.WithDsl
 import me.deference.formdoc.getValueFromMap
 import kotlin.reflect.KProperty1
 
 @Validatable
+@WithDsl
 data class Address(
     @NotBlank("Required")
     val usage: String = "",

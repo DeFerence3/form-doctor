@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.ksp)
+    id("io.github.deference3.formdoc")
 }
 
 kotlin {
@@ -120,5 +121,13 @@ compose.desktop {
             packageName = "me.deference.formsample"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+// Use compiler sources from this checkout when developing the plugin itself.
+configurations.configureEach {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("io.github.deference3:formdoc-compiler"))
+            .using(project(":compiler-plugin"))
     }
 }

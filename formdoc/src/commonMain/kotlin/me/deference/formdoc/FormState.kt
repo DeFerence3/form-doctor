@@ -12,7 +12,7 @@ import kotlin.reflect.KProperty1
 import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("UNCHECKED_CAST")
-class FormState<T : Any>(
+class FormState<T>(
     val initialData: T,
     private val metadata: FormMetadata<T>?,
     private val scope: CoroutineScope? = null
@@ -29,13 +29,8 @@ class FormState<T : Any>(
     init {
         val allProps = metadata?.fields ?: emptyList()
         allProps.forEach { prop ->
-            val validators = (metadata?.validators?.get(prop) ?: emptyList()) as List<FieldValidator<Any?>>
-            validators.forEach { validator ->
-                if (validator is FormStateAware<*>) {
-                    @Suppress("UNCHECKED_CAST")
-                    (validator as FormStateAware<T>).setFormState(this)
-                }
-            }
+            val validators = ((metadata?.validators?.get(prop) ?: emptyList()) as List<FieldValidator<Any?>>)
+                .map { bindValidator(it) }
             val meta = metadata?.fieldMetadata?.get(prop) ?: FieldMetadata()
             val value = getInitial(prop)
             val entry = FieldEntry(
@@ -83,14 +78,22 @@ class FormState<T : Any>(
 
     fun <V> getInitial(prop: KProperty1<T, V>): V = prop.get(initialData)
 
-    @Suppress("UNCHECKED_CAST")
-    fun <V> addValidator(prop: KProperty1<T, V>, validator: FieldValidator<V>) {
+    private fun <V> bindValidator(validator: FieldValidator<V>): FieldValidator<V> {
+        if (validator is FormStateValidator<*, *>) {
+            // Metadata can be shared; each form needs its own cross-field binding.
+            return (validator as FormStateValidator<Any, V>).boundTo(this as FormState<Any>)
+        }
         if (validator is FormStateAware<*>) {
             (validator as FormStateAware<T>).setFormState(this)
         }
+        return validator
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <V> addValidator(prop: KProperty1<T, V>, validator: FieldValidator<V>) {
         val entry = fields[prop] as? FieldEntry<V>
         if (entry != null) {
-            entry.validators.add(validator)
+            entry.validators.add(bindValidator(validator))
         } else {
             registerFieldInternal(prop, listOf(validator))
         }
@@ -101,12 +104,6 @@ class FormState<T : Any>(
         validators: List<FieldValidator<V>>,
         meta: FieldMetadata = FieldMetadata()
     ): FieldState<V> {
-        validators.forEach { validator ->
-            if (validator is FormStateAware<*>) {
-                @Suppress("UNCHECKED_CAST")
-                (validator as FormStateAware<T>).setFormState(this)
-            }
-        }
         val existing = fields[prop] as? FieldEntry<V>
         val state = existing?.state ?: FieldState(
             initial = getInitial(prop),
@@ -116,7 +113,7 @@ class FormState<T : Any>(
         )
         val entry = FieldEntry(
             state = state,
-            validators = validators.toMutableList(),
+            validators = validators.map { bindValidator(it) }.toMutableList(),
             metadata = meta
         )
         fields[prop] = entry

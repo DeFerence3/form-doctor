@@ -7,6 +7,15 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 annotation class Validatable
 
+/**
+ * Adds a companion `dsl(builder: FormMetadataBuilder<ThisForm>)` hook to a
+ * non-generic [Validatable] data class. A source-defined hook replaces the empty
+ * generated implementation. Its rules extend the field annotation metadata.
+ */
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.CLASS)
+annotation class WithDsl
+
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.PROPERTY)
 annotation class NotBlank(val message: String = "This field is required")
@@ -69,7 +78,7 @@ data class FieldMetadata(
     val enabledIf: String = ""
 )
 
-interface FormMetadata<T : Any> {
+interface FormMetadata<T> {
     val validators: Map<KProperty1<T, *>, List<FieldValidator<*>>>
     val fieldMetadata: Map<KProperty1<T, *>, FieldMetadata>
     val fields: List<KProperty1<T, *>>

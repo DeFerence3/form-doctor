@@ -10,7 +10,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
-import com.sun.beans.introspect.PropertyInfo
 import java.io.OutputStream
 
 class FormProcessor(
@@ -45,6 +44,10 @@ class FormProcessor(
             val packageName = classDeclaration.packageName.asString()
             val className = classDeclaration.simpleName.asString()
             val generatedClassName = "${className}Metadata"
+            val withDsl = classDeclaration.annotations.any {
+                it.annotationType.resolve().declaration.qualifiedName?.asString() == "me.deference.formdoc.WithDsl"
+            }
+            val annotationClassName = if (withDsl) "${className}AnnotationMetadata" else generatedClassName
             val file = codeGenerator.createNewFile(
                 Dependencies(true, classDeclaration.containingFile!!),
                 packageName,
@@ -57,7 +60,7 @@ class FormProcessor(
                 output.appendLine("import me.deference.formdoc.*")
                 output.appendLine("import me.deference.formdoc.Validators")
                 output.appendLine()
-                output.appendLine("class $generatedClassName : FormMetadata<$className> {")
+                output.appendLine("${if (withDsl) "private " else ""}class $annotationClassName : FormMetadata<$className> {")
                 output.appendLine("    override val validators: Map<kotlin.reflect.KProperty1<$className, *>, List<FieldValidator<*>>> = mapOf(")
 
                 val properties = classDeclaration.getAllProperties().toList()
@@ -145,6 +148,12 @@ class FormProcessor(
                 }
                 output.appendLine("    )")
                 output.appendLine("}")
+                if (withDsl) {
+                    output.appendLine()
+                    output.appendLine("class $generatedClassName : FormMetadata<$className> by formConfig($annotationClassName(), {")
+                    output.appendLine("    $className.dsl(this)")
+                    output.appendLine("})")
+                }
             }
         }
     }
